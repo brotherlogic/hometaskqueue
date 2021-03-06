@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package hometaskqueue;
+
+option go_package = "github.com/brotherlogic/hometaskqueue/proto";
+
+enum TaskType {
+        UNKNOWN = 0;
+        GITHUB = 1;
+        PRINTER = 2;
+    }
+
+message Task {
+    string id = 1;
+    int32 ttl = 2;
+    int64 date_added = 3;
+    
+    string title = 4;
+    string body = 5;
+    string component = 6;
+
+    TaskType type = 7;
+}
+
+message Queue {
+    string id = 1;
+    string queue_name = 2;
+    string github = 3;
+    string github_key = 4;
+
+    repeated Task tasks = 5;
+
+    int64 last_clean_time = 6;
+}
+
+message AddQueueRequest {
+    string queue_name = 1;
+    string github = 2;
+    string github_key = 3;
+}
+
+message AddQueueResponse {
+    Queue added = 1;
+}
+
+message GetTasksRequest {
+    string queue_id = 1;
+    TaskType type = 2;
+    int64 since = 3;
+}
+
+message GetTasksResponse {
+    repeated Task tasks = 1;
+}
+
+message AddTaskRequest {
+    Task task = 1;
+    string queue_name = 2;
+}
+
+message AddTaskResponse {}
+
+service HomeTaskQueueService {
+  rpc AddQueue(AddQueueRequest) returns (AddQueueResponse) {};
+  rpc GetTasks(GetTasksRequest) returns (GetTasksResponse) {};
+  rpc AddTask(AddTaskRequest) returns (AddTaskResponse) {};
+}

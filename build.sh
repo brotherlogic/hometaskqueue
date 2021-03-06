@@ -1,0 +1,2 @@
+/home/simon/.local/bin/protoc -I=./proto --proto_path ../../../ --go_out ./proto --go_opt=paths=source_relative --go-grpc_out ./proto --go-grpc_opt paths=source_relative --go-grpc_opt=require_unimplemented_servers=false proto/hometaskqueue.proto
+/home/simon/.local/bin/protoc -I=./proto --proto_path ../../../ --grpc-gateway_out ./proto/ --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true proto/hometaskqueue.proto
