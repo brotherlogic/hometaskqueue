@@ -26,7 +26,7 @@ jobs:
     - uses: google-github-actions/setup-gcloud@master
       with:
         service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-        project_id: $PROJECT_ID
+        project_id: hometaskqueue
 
     # Build and push image to Google Container Registry
     - name: Build
