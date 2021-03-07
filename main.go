@@ -62,6 +62,7 @@ func main() {
 
 	pb.RegisterHomeTaskQueueServiceServer(s, server)
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+	log.Printf("Listening on %v", port)
 	if err != nil {
 		log.Fatalf("Error grpc listen: %v", err)
 	}
