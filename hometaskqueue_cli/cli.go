@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	conn, err := grpc.Dial("https://hometaskqueue-q2ijxfqena-uw.a.run.app", grpc.WithInsecure())
+	conn, err := grpc.Dial("hometaskqueue-q2ijxfqena-uw.a.run.app:443", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Dial Error: %v", err)
 	}
