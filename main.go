@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
@@ -21,6 +22,7 @@ var (
 )
 
 type server struct {
+	lastRequest time.Time
 }
 
 func getClient(ctx context.Context, useLocal bool) *firebase.App {
@@ -54,6 +56,7 @@ func main() {
 
 	s := grpc.NewServer()
 	server := &server{}
+	server.lastRequest = time.Unix(0, 0)
 
 	// Only init remote options if we're not running locally
 	if !*localMode {
