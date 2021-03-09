@@ -65,7 +65,7 @@ func (st *Storage) GetQueueID(ctx context.Context, queueID string) (*pb.Queue, e
 	code := status.Convert(err)
 	if code.Code() == codes.OK {
 		if len(ud) != 1 {
-			log.Printf("RETURN: %v", ud)
+			log.Printf("RETURN: %v -> %v", ud, queueID)
 			return nil, status.Errorf(codes.Internal, "Too many queues returned (%v)", len(ud))
 		}
 
