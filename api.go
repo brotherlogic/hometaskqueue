@@ -60,12 +60,12 @@ func (st *Storage) GetQueue(ctx context.Context, queueName string) (*pb.Queue, e
 }
 
 //GetQueueID gets a queue from the db
-func (st *Storage) GetQueueID(ctx context.Context, queueId string) (*pb.Queue, error) {
-	ud, err := st.client.Collection("queues").Where("id", "==", queueId).Documents(ctx).GetAll()
+func (st *Storage) GetQueueID(ctx context.Context, queueID string) (*pb.Queue, error) {
+	ud, err := st.client.Collection("queues").Where("id", "==", queueID).Documents(ctx).GetAll()
 	code := status.Convert(err)
 	if code.Code() == codes.OK {
 		if len(ud) != 1 {
-			return nil, status.Errorf(codes.Internal, "Too many queues returned")
+			return nil, status.Errorf(codes.Internal, "Too many queues returned (%v)", len(ud))
 		}
 
 		queue := &pb.Queue{}

@@ -4,7 +4,9 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"flag"
 	"log"
+	"os"
 	"time"
 
 	"google.golang.org/grpc"
@@ -36,10 +38,33 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	res, err := client.AddQueue(ctx, &pb.AddQueueRequest{})
-	if err != nil {
-		log.Fatalf("Bad requests: %v", err)
-	}
+	switch os.Args[1] {
+	case "add":
+		addFlags := flag.NewFlagSet("Add", flag.ExitOnError)
+		var queue = addFlags.String("queue", "", "The name of the queue")
+		var github = addFlags.String("github", "", "The name of the github base")
+		var githubKey = addFlags.String("githubKey", "", "The github personal key")
 
-	log.Printf("Result: %v", res)
+		if err := addFlags.Parse(os.Args[2:]); err == nil {
+			res, err := client.AddQueue(ctx, &pb.AddQueueRequest{
+				QueueName: *queue,
+				Github:    *github,
+				GithubKey: *githubKey,
+			})
+			if err != nil {
+				log.Fatalf("Bad requests: %v", err)
+			}
+
+			log.Printf("Result: %v", res)
+		}
+
+	case "tasks":
+		taskFlags := flag.NewFlagSet("Tasks", flag.ExitOnError)
+		var queue = taskFlags.String("queue", "", "The id of the queue")
+		res, err := client.GetTasks(ctx, &pb.GetTasksRequest{QueueId: *queue})
+		if err != nil {
+			log.Fatalf("Bad request: %v", err)
+		}
+		log.Printf("Result: %v", res)
+	}
 }
