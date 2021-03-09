@@ -55,7 +55,7 @@ message GetTasksResponse {
 
 message AddTaskRequest {
     Task task = 1;
-    string queue_name = 2;
+    string queue_id = 2;
 }
 
 message AddTaskResponse {}

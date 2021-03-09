@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -60,6 +59,23 @@ func (st *Storage) GetQueue(ctx context.Context, queueName string) (*pb.Queue, e
 	return nil, err
 }
 
+//GetQueueID gets a queue from the db
+func (st *Storage) GetQueueID(ctx context.Context, queueId string) (*pb.Queue, error) {
+	ud, err := st.client.Collection("queues").Where("id", "==", queueId).Documents(ctx).GetAll()
+	code := status.Convert(err)
+	if code.Code() == codes.OK {
+		if len(ud) != 1 {
+			return nil, status.Errorf(codes.Internal, "Too many queues returned")
+		}
+
+		queue := &pb.Queue{}
+		ud[0].DataTo(queue)
+		return queue, nil
+	}
+
+	return nil, err
+}
+
 //SaveQueue Saves the queue
 func (st *Storage) SaveQueue(ctx context.Context, queue *pb.Queue) error {
 	_, err := st.client.Collection("queues").Doc(queue.GetQueueName()).Set(ctx, queue)
@@ -93,8 +109,34 @@ func (s *server) AddQueue(ctx context.Context, req *pb.AddQueueRequest) (*pb.Add
 	return &pb.AddQueueResponse{Added: queue}, st.SaveQueue(ctx, queue)
 }
 func (s *server) GetTasks(ctx context.Context, req *pb.GetTasksRequest) (*pb.GetTasksResponse, error) {
-	return nil, fmt.Errorf("Bad request")
+	st := NewStorage()
+	q, err := st.GetQueueID(ctx, req.GetQueueId())
+	if err != nil {
+		return nil, err
+	}
+
+	var tasks []*pb.Task
+	for _, task := range q.GetTasks() {
+		if (req.GetSince() == 0 || task.GetDateAdded() < req.GetSince()) &&
+			(req.GetType() != pb.TaskType_UNKNOWN || task.GetType() == req.GetType()) {
+			tasks = append(tasks, task)
+		}
+	}
+
+	return &pb.GetTasksResponse{
+		Tasks: tasks,
+	}, nil
 }
 func (s *server) AddTask(ctx context.Context, req *pb.AddTaskRequest) (*pb.AddTaskResponse, error) {
-	return nil, fmt.Errorf("Bad request")
+	st := NewStorage()
+	q, err := st.GetQueueID(ctx, req.GetQueueId())
+	if err != nil {
+		return nil, err
+	}
+
+	task := req.GetTask()
+	task.DateAdded = time.Now().Unix()
+	q.Tasks = append(q.Tasks, task)
+
+	return &pb.AddTaskResponse{}, st.SaveQueue(ctx, q)
 }
