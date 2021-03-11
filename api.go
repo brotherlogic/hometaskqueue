@@ -119,7 +119,7 @@ func (s *server) GetTasks(ctx context.Context, req *pb.GetTasksRequest) (*pb.Get
 	var tasks []*pb.Task
 	for _, task := range q.GetTasks() {
 		if (req.GetSince() == 0 || task.GetDateAdded() > req.GetSince()) &&
-			(req.GetType() != pb.TaskType_UNKNOWN || task.GetType() == req.GetType()) {
+			(req.GetType() == pb.TaskType_UNKNOWN || task.GetType() == req.GetType()) {
 			tasks = append(tasks, task)
 		}
 	}
