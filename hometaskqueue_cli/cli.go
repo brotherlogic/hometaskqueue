@@ -58,13 +58,36 @@ func main() {
 			log.Printf("Result: %v", res)
 		}
 
+	case "task":
+		taskFlags := flag.NewFlagSet("Task", flag.ExitOnError)
+		var queue = taskFlags.String("queue", "", "The name of the queue")
+		var taskName = taskFlags.String("name", "", "The name of the task")
+
+		if err := taskFlags.Parse(os.Args[2:]); err == nil {
+			res, err := client.AddTask(ctx, &pb.AddTaskRequest{
+				Task: &pb.Task{
+					Title: *taskName,
+					Ttl:   10,
+				},
+				QueueId: *queue,
+			})
+			if err != nil {
+				log.Fatalf("Bad add task: %v", err)
+			}
+
+			log.Printf("Result: %v", res)
+		}
+
 	case "tasks":
 		taskFlags := flag.NewFlagSet("Tasks", flag.ExitOnError)
 		var queue = taskFlags.String("queue", "", "The id of the queue")
-		res, err := client.GetTasks(ctx, &pb.GetTasksRequest{QueueId: *queue})
-		if err != nil {
-			log.Fatalf("Bad request: %v", err)
+
+		if err := taskFlags.Parse(os.Args[2:]); err == nil {
+			res, err := client.GetTasks(ctx, &pb.GetTasksRequest{QueueId: *queue})
+			if err != nil {
+				log.Fatalf("Bad request: %v", err)
+			}
+			log.Printf("Result: %v", res)
 		}
-		log.Printf("Result: %v", res)
 	}
 }
