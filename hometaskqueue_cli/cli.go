@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -88,6 +89,29 @@ func main() {
 				log.Fatalf("Bad request: %v", err)
 			}
 			log.Printf("Result: %v", res)
+		}
+
+	case "today":
+		taskFlags := flag.NewFlagSet("Tasks", flag.ExitOnError)
+		var queue = taskFlags.String("queue", "", "The id of the queue")
+
+		if err := taskFlags.Parse(os.Args[2:]); err == nil {
+			res, err := client.GetTasks(ctx, &pb.GetTasksRequest{QueueId: *queue})
+			if err != nil {
+				log.Fatalf("Bad request: %v", err)
+			}
+			youngest := int64(0)
+			for _, task := range res.GetTasks() {
+				if task.GetDateAdded() > youngest {
+					youngest = task.GetDateAdded()
+				}
+				ti := time.Unix(task.GetDateAdded(), 0)
+				if ti.Year() == time.Now().Year() && ti.Day() == time.Now().Day() && ti.Month() == time.Now().Month() {
+					fmt.Printf("%v\n", task.Body)
+				}
+			}
+
+			fmt.Printf("%v\n", time.Unix(youngest, 0))
 		}
 	}
 }
